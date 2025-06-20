@@ -30,192 +30,230 @@ fn get_navigation_bar_script() -> String {
             return;
         }
 
-        // Create navigation bar HTML
-        const navBarHTML = `
-            <div id="xbrowser-nav-bar" style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 50px;
-                background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
-                border-bottom: 1px solid #ccc;
-                display: flex;
-                align-items: center;
-                padding: 8px 12px;
-                gap: 8px;
-                z-index: 999999;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                font-size: 14px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            ">
-                <button id="xbrowser-back" style="
-                    width: 32px;
-                    height: 32px;
-                    border: none;
-                    border-radius: 6px;
-                    background: transparent;
-                    cursor: pointer;
+        // Wait for DOM to be ready
+        function injectNavBar() {
+            // Create navigation bar HTML
+            const navBarHTML = `
+                <div id="xbrowser-nav-bar" style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 50px;
+                    background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
+                    border-bottom: 1px solid #ccc;
                     display: flex;
                     align-items: center;
-                    justify-content: center;
-                    color: #555;
-                    transition: background 0.2s;
-                " title="Go Back">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                    </svg>
-                </button>
-                
-                <button id="xbrowser-forward" style="
-                    width: 32px;
-                    height: 32px;
-                    border: none;
-                    border-radius: 6px;
-                    background: transparent;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #555;
-                    transition: background 0.2s;
-                " title="Go Forward">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                    </svg>
-                </button>
-                
-                <button id="xbrowser-reload" style="
-                    width: 32px;
-                    height: 32px;
-                    border: none;
-                    border-radius: 6px;
-                    background: transparent;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #555;
-                    transition: background 0.2s;
-                " title="Reload">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                    </svg>
-                </button>
-                
-                <div style="
-                    flex: 1;
-                    display: flex;
-                    align-items: center;
-                    background: #fff;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    padding: 0 12px;
-                    height: 34px;
-                    margin: 0 8px;
+                    padding: 8px 12px;
+                    gap: 8px;
+                    z-index: 2147483647;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 14px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    user-select: none;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
                 ">
-                    <div style="
+                    <button id="xbrowser-back" style="
+                        width: 32px;
+                        height: 32px;
+                        border: none;
+                        border-radius: 6px;
+                        background: transparent;
+                        cursor: pointer;
                         display: flex;
                         align-items: center;
-                        color: #4CAF50;
-                        margin-right: 8px;
-                    ">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18,8h-1V6c0-2.76-2.24-5-5-5S7,3.24,7,6v2H6c-1.1,0-2,0.9-2,2v10c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V10C20,8.9,19.1,8,18,8z M9,6c0-1.66,1.34-3,3-3s3,1.34,3,3v2H9V6z"/>
+                        justify-content: center;
+                        color: #555;
+                        transition: background 0.2s;
+                    " title="Go Back">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                         </svg>
-                    </div>
-                    <input id="xbrowser-url" type="text" value="${window.location.href}" style="
-                        flex: 1;
+                    </button>
+                    
+                    <button id="xbrowser-forward" style="
+                        width: 32px;
+                        height: 32px;
                         border: none;
-                        outline: none;
-                        font-size: 14px;
+                        border-radius: 6px;
                         background: transparent;
-                        color: #333;
-                    " readonly>
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #555;
+                        transition: background 0.2s;
+                    " title="Go Forward">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                        </svg>
+                    </button>
+                    
+                    <button id="xbrowser-reload" style="
+                        width: 32px;
+                        height: 32px;
+                        border: none;
+                        border-radius: 6px;
+                        background: transparent;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #555;
+                        transition: background 0.2s;
+                    " title="Reload">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                        </svg>
+                    </button>
+                    
+                    <div style="
+                        flex: 1;
+                        display: flex;
+                        align-items: center;
+                        background: #fff;
+                        border: 1px solid #ddd;
+                        border-radius: 8px;
+                        padding: 0 12px;
+                        height: 34px;
+                        margin: 0 8px;
+                    ">
+                        <div style="
+                            display: flex;
+                            align-items: center;
+                            color: #4CAF50;
+                            margin-right: 8px;
+                        ">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18,8h-1V6c0-2.76-2.24-5-5-5S7,3.24,7,6v2H6c-1.1,0-2,0.9-2,2v10c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V10C20,8.9,19.1,8,18,8z M9,6c0-1.66,1.34-3,3-3s3,1.34,3,3v2H9V6z"/>
+                            </svg>
+                        </div>
+                        <input id="xbrowser-url" type="text" value="${window.location.href}" style="
+                            flex: 1;
+                            border: none;
+                            outline: none;
+                            font-size: 14px;
+                            background: transparent;
+                            color: #333;
+                        " readonly>
+                    </div>
+                    
+                    <button id="xbrowser-close" style="
+                        width: 32px;
+                        height: 32px;
+                        border: none;
+                        border-radius: 6px;
+                        background: transparent;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #d32f2f;
+                        transition: background 0.2s;
+                    " title="Close">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                        </svg>
+                    </button>
                 </div>
-                
-                <button id="xbrowser-close" style="
-                    width: 32px;
-                    height: 32px;
-                    border: none;
-                    border-radius: 6px;
-                    background: transparent;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #d32f2f;
-                    transition: background 0.2s;
-                " title="Close">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
-                    </svg>
-                </button>
-            </div>
-        `;
+            `;
 
-        // Inject navigation bar
-        document.body.insertAdjacentHTML('afterbegin', navBarHTML);
+            // Inject navigation bar
+            if (document.body) {
+                document.body.insertAdjacentHTML('afterbegin', navBarHTML);
+                
+                // Adjust body margin to account for nav bar
+                if (document.body.style.marginTop === '' || parseInt(document.body.style.marginTop) < 50) {
+                    document.body.style.marginTop = '50px';
+                }
+                
+                // Add button hover effects
+                const buttons = document.querySelectorAll('#xbrowser-nav-bar button');
+                buttons.forEach(button => {
+                    button.addEventListener('mouseenter', () => {
+                        button.style.background = 'rgba(0,0,0,0.1)';
+                    });
+                    button.addEventListener('mouseleave', () => {
+                        button.style.background = 'transparent';
+                    });
+                });
+                
+                // Add navigation functionality
+                document.getElementById('xbrowser-back').addEventListener('click', () => {
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    }
+                });
+                
+                document.getElementById('xbrowser-forward').addEventListener('click', () => {
+                    window.history.forward();
+                });
+                
+                document.getElementById('xbrowser-reload').addEventListener('click', () => {
+                    window.location.reload();
+                });
+                
+                document.getElementById('xbrowser-close').addEventListener('click', () => {
+                    window.close();
+                });
+                
+                // Update URL when navigation occurs
+                const updateURL = () => {
+                    const urlInput = document.getElementById('xbrowser-url');
+                    if (urlInput) {
+                        urlInput.value = window.location.href;
+                    }
+                };
+                
+                // Listen for navigation events
+                window.addEventListener('popstate', updateURL);
+                window.addEventListener('load', updateURL);
+                
+                // Update URL periodically (for SPAs)
+                setInterval(updateURL, 1000);
+                
+                console.log('xbrowser navigation bar injected successfully');
+                return true;
+            }
+            return false;
+        }
+
+        // Try to inject immediately if DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', injectNavBar);
+        } else {
+            injectNavBar();
+        }
         
-        // Adjust body margin to account for nav bar
-        document.body.style.marginTop = '50px';
-        
-        // Add button hover effects
-        const buttons = document.querySelectorAll('#xbrowser-nav-bar button');
-        buttons.forEach(button => {
-            button.addEventListener('mouseenter', () => {
-                button.style.background = 'rgba(0,0,0,0.1)';
-            });
-            button.addEventListener('mouseleave', () => {
-                button.style.background = 'transparent';
-            });
-        });
-        
-        // Add navigation functionality
-        document.getElementById('xbrowser-back').addEventListener('click', () => {
-            if (window.history.length > 1) {
-                window.history.back();
+        // Also try after window load as fallback
+        window.addEventListener('load', () => {
+            if (!document.getElementById('xbrowser-nav-bar')) {
+                injectNavBar();
             }
         });
-        
-        document.getElementById('xbrowser-forward').addEventListener('click', () => {
-            window.history.forward();
-        });
-        
-        document.getElementById('xbrowser-reload').addEventListener('click', () => {
-            window.location.reload();
-        });
-        
-        document.getElementById('xbrowser-close').addEventListener('click', () => {
-            // This will be handled by the Tauri backend
-            window.close();
-        });
-        
-        // Update URL when navigation occurs
-        const updateURL = () => {
-            const urlInput = document.getElementById('xbrowser-url');
-            if (urlInput) {
-                urlInput.value = window.location.href;
-            }
-        };
-        
-        // Listen for navigation events
-        window.addEventListener('popstate', updateURL);
-        window.addEventListener('load', updateURL);
-        
-        // Update URL periodically (for dynamic content)
-        setInterval(updateURL, 1000);
-        
-        // Make navigation bar unselectable
-        const navBar = document.getElementById('xbrowser-nav-bar');
-        navBar.style.userSelect = 'none';
-        navBar.style.webkitUserSelect = 'none';
-        navBar.style.mozUserSelect = 'none';
-        navBar.style.msUserSelect = 'none';
-        
-        console.log('xbrowser navigation bar injected');
     })();
     "#.to_string()
+}
+
+async fn inject_navigation_with_retries(webview: &tauri::WebviewWindow) {
+    for attempt in 1..=5 {
+        tokio::time::sleep(tokio::time::Duration::from_millis(attempt * 300)).await;
+
+        match webview.eval(&get_navigation_bar_script()) {
+            Ok(_) => {
+                println!("Navigation bar injection attempt {} succeeded", attempt);
+                break;
+            }
+            Err(e) => {
+                println!("Navigation bar injection attempt {} failed: {}", attempt, e);
+                if attempt == 5 {
+                    println!("All navigation bar injection attempts failed");
+                }
+            }
+        }
+    }
 }
 
 #[tauri::command]
@@ -233,9 +271,11 @@ async fn navigate_to_url(app: tauri::AppHandle, url: String) -> Result<String, S
                     // Navigate existing webview
                     match browser_webview.navigate(parsed_url.clone()) {
                         Ok(_) => {
-                            // Inject navigation bar after navigation
-                            tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
-                            let _ = browser_webview.eval(&get_navigation_bar_script());
+                            // Inject navigation bar with retries after navigation
+                            let webview_clone = browser_webview.clone();
+                            tauri::async_runtime::spawn(async move {
+                                inject_navigation_with_retries(&webview_clone).await;
+                            });
                             Ok(format!("Navigated to {}", url))
                         }
                         Err(e) => Err(format!("Failed to navigate: {}", e)),
@@ -262,11 +302,10 @@ async fn navigate_to_url(app: tauri::AppHandle, url: String) -> Result<String, S
                             // Hide the main window since we now have a browser window
                             let _ = main_window.hide();
 
-                            // Inject navigation bar after the page loads
+                            // Inject navigation bar with retries after the page loads
                             let webview_clone = webview.clone();
                             tauri::async_runtime::spawn(async move {
-                                tokio::time::sleep(tokio::time::Duration::from_millis(1500)).await;
-                                let _ = webview_clone.eval(&get_navigation_bar_script());
+                                inject_navigation_with_retries(&webview_clone).await;
                             });
 
                             Ok(format!("Opened {} in new browser window", url))
@@ -315,11 +354,17 @@ async fn get_current_url(app: tauri::AppHandle) -> Result<String, String> {
 #[tauri::command]
 async fn browser_go_back(app: tauri::AppHandle) -> Result<String, String> {
     if let Some(browser_window) = app.get_webview_window("browser") {
-        // Tauri doesn't have direct back/forward navigation
-        // We'll need to implement this with JavaScript injection
         let script = "if (window.history.length > 1) { window.history.back(); }";
         match browser_window.eval(script) {
-            Ok(_) => Ok("Navigated back".to_string()),
+            Ok(_) => {
+                // Re-inject navigation bar after navigation
+                let webview_clone = browser_window.clone();
+                tauri::async_runtime::spawn(async move {
+                    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+                    let _ = webview_clone.eval(&get_navigation_bar_script());
+                });
+                Ok("Navigated back".to_string())
+            }
             Err(e) => Err(format!("Failed to go back: {}", e)),
         }
     } else {
@@ -332,7 +377,15 @@ async fn browser_go_forward(app: tauri::AppHandle) -> Result<String, String> {
     if let Some(browser_window) = app.get_webview_window("browser") {
         let script = "window.history.forward();";
         match browser_window.eval(script) {
-            Ok(_) => Ok("Navigated forward".to_string()),
+            Ok(_) => {
+                // Re-inject navigation bar after navigation
+                let webview_clone = browser_window.clone();
+                tauri::async_runtime::spawn(async move {
+                    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+                    let _ = webview_clone.eval(&get_navigation_bar_script());
+                });
+                Ok("Navigated forward".to_string())
+            }
             Err(e) => Err(format!("Failed to go forward: {}", e)),
         }
     } else {
@@ -345,7 +398,14 @@ async fn browser_refresh(app: tauri::AppHandle) -> Result<String, String> {
     if let Some(browser_window) = app.get_webview_window("browser") {
         let script = "window.location.reload();";
         match browser_window.eval(script) {
-            Ok(_) => Ok("Page refreshed".to_string()),
+            Ok(_) => {
+                // Re-inject navigation bar after refresh
+                let webview_clone = browser_window.clone();
+                tauri::async_runtime::spawn(async move {
+                    inject_navigation_with_retries(&webview_clone).await;
+                });
+                Ok("Page refreshed".to_string())
+            }
             Err(e) => Err(format!("Failed to refresh: {}", e)),
         }
     } else {
@@ -360,6 +420,19 @@ async fn inject_navigation_bar(app: tauri::AppHandle) -> Result<String, String> 
             Ok(_) => Ok("Navigation bar injected".to_string()),
             Err(e) => Err(format!("Failed to inject navigation bar: {}", e)),
         }
+    } else {
+        Err("No browser window found".to_string())
+    }
+}
+
+#[tauri::command]
+async fn force_inject_navigation(app: tauri::AppHandle) -> Result<String, String> {
+    if let Some(browser_window) = app.get_webview_window("browser") {
+        let webview_clone = browser_window.clone();
+        tauri::async_runtime::spawn(async move {
+            inject_navigation_with_retries(&webview_clone).await;
+        });
+        Ok("Force injection started".to_string())
     } else {
         Err("No browser window found".to_string())
     }
@@ -429,6 +502,7 @@ pub fn run() {
             browser_go_forward,
             browser_refresh,
             inject_navigation_bar,
+            force_inject_navigation,
             update_bookmarks,
             get_bookmarks,
             clear_history,

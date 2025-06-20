@@ -110,6 +110,16 @@ async function navigateToUrl(input) {
       
       updateStatus(result);
       setLoadingState(false);
+      
+      // Inject navigation bar immediately after page starts loading
+      try {
+        await invoke("inject_navigation_bar");
+        updateStatus("Navigation bar injected");
+      } catch (error) {
+        console.error("Navigation bar injection error:", error);
+        updateStatus("Navigation bar injection failed - use Ctrl+I to retry");
+      }
+      
     } else {
       throw new Error("Invalid URL");
     }
@@ -195,6 +205,16 @@ async function closeBrowserWindow() {
   }
 }
 
+async function forceInjectNavigation() {
+  try {
+    const result = await invoke("force_inject_navigation");
+    updateStatus(result);
+  } catch (error) {
+    console.error("Force inject error:", error);
+    updateStatus(`Failed to inject navigation: ${error.message}`);
+  }
+}
+
 function setLoadingState(loading) {
   browserState.isLoading = loading;
   
@@ -267,32 +287,60 @@ async function toggleBookmark() {
 }
 
 function showMenu() {
-  // Enhanced menu with browser window controls
-  const menu = [
-    "New Tab",
-    "New Window", 
-    "Close Browser Window",
-    "---",
-    "History",
-    "Bookmarks",
-    "Downloads",
-    "---",
-    "Settings",
-    "Developer Tools"
+  // Enhanced menu with browser window controls and navigation injection
+  const menuOptions = [
+    { text: "New Tab", action: () => console.log("New tab") },
+    { text: "New Window", action: () => console.log("New window") },
+    { text: "Close Browser Window", action: closeBrowserWindow },
+    { text: "---", action: null },
+    { text: "Force Inject Navigation", action: forceInjectNavigation },
+    { text: "History", action: () => console.log("History") },
+    { text: "Bookmarks", action: () => console.log("Bookmarks") },
+    { text: "Downloads", action: () => console.log("Downloads") },
+    { text: "---", action: null },
+    { text: "Settings", action: () => console.log("Settings") },
+    { text: "Developer Tools", action: () => console.log("Dev tools") }
   ];
   
-  updateStatus("Menu opened");
+  updateStatus("Menu opened - showing options...");
   
-  // You could implement a proper context menu here
-  console.log("Menu items:", menu);
-  
-  // For demo purposes, let's add a close browser option
-  setTimeout(() => {
-    const shouldClose = confirm("Would you like to close the browser window?");
-    if (shouldClose) {
-      closeBrowserWindow();
+  // Simple implementation - show options in console and provide key actions
+  console.log("xbrowser Menu Options:");
+  menuOptions.forEach((option, index) => {
+    if (option.text === "---") {
+      console.log("---");
+    } else {
+      console.log(`${index + 1}. ${option.text}`);
     }
-  }, 1000);
+  });
+  
+  // For demo purposes, let's provide a simple interface
+  setTimeout(() => {
+    const action = prompt(`Choose an action:
+1. Close Browser Window
+2. Force Inject Navigation Bar
+3. Show Bookmarks
+4. Cancel
+
+Enter number (1-4):`);
+    
+    switch (action) {
+      case "1":
+        closeBrowserWindow();
+        break;
+      case "2":
+        forceInjectNavigation();
+        break;
+      case "3":
+        console.log("Bookmarks:", browserState.bookmarks);
+        updateStatus(`You have ${browserState.bookmarks.length} bookmarks`);
+        break;
+      case "4":
+      default:
+        updateStatus("Menu cancelled");
+        break;
+    }
+  }, 100);
 }
 
 async function loadHomePage() {
@@ -327,6 +375,10 @@ document.addEventListener("keydown", (event) => {
       case "w":
         event.preventDefault();
         closeBrowserWindow();
+        break;
+      case "i":
+        event.preventDefault();
+        forceInjectNavigation();
         break;
     }
   }
