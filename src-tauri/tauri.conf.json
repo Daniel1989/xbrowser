@@ -2,9 +2,12 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "xbrowser",
   "version": "0.1.0",
-  "identifier": "com.xbrowser.app",
+  "identifier": "com.example.xbrowser",
   "build": {
-    "frontendDist": "../src"
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:8888"
   },
   "app": {
     "withGlobalTauri": true,
@@ -13,19 +16,19 @@
         "title": "xbrowser",
         "width": 1200,
         "height": 800,
-        "minWidth": 800,
-        "minHeight": 600,
+        "minWidth": 600,
+        "minHeight": 400,
+        "fullscreen": false,
         "resizable": true,
-        "maximizable": true,
-        "minimizable": true,
-        "closable": true,
-        "titleBarStyle": "Visible",
+        "maximized": false,
+        "transparent": false,
+        "alwaysOnTop": false,
         "decorations": true,
         "center": true
       }
     ],
     "security": {
-      "csp": "default-src 'self' data: https: http: 'unsafe-inline' 'unsafe-eval'; frame-src 'self' data: https: http:; img-src 'self' data: https: http:; media-src 'self' data: https: http:; connect-src 'self' data: https: http: ws: wss:;"
+      "csp": "default-src 'self' 'unsafe-inline' data: blob: https: http:; img-src 'self' 'unsafe-inline' data: blob: https: http:; media-src 'self' 'unsafe-inline' data: blob: https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https: http:; style-src 'self' 'unsafe-inline' data: blob: https: http:; connect-src 'self' 'unsafe-inline' data: blob: https: http: ws: wss:; font-src 'self' 'unsafe-inline' data: blob: https: http:; frame-src 'self' 'unsafe-inline' data: blob: https: http:; object-src 'none'; base-uri 'self';"
     }
   },
   "bundle": {
@@ -41,5 +44,10 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "active": false
+    }
   }
 }
