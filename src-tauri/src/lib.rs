@@ -1,5 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use serde::{Deserialize, Serialize};
+use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 use url::Url;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,6 +19,128 @@ fn validate_url(url: String) -> bool {
             matches!(parsed_url.scheme(), "http" | "https")
         }
         Err(_) => false,
+    }
+}
+
+#[tauri::command]
+async fn navigate_to_url(app: tauri::AppHandle, url: String) -> Result<String, String> {
+    match Url::parse(&url) {
+        Ok(parsed_url) => {
+            if !matches!(parsed_url.scheme(), "http" | "https") {
+                return Err("Only HTTP and HTTPS URLs are supported".to_string());
+            }
+
+            // Get the main window
+            if let Some(main_window) = app.get_webview_window("main") {
+                // Check if browser webview already exists
+                if let Some(browser_webview) = app.get_webview_window("browser") {
+                    // Navigate existing webview
+                    match browser_webview.navigate(parsed_url.clone()) {
+                        Ok(_) => Ok(format!("Navigated to {}", url)),
+                        Err(e) => Err(format!("Failed to navigate: {}", e)),
+                    }
+                } else {
+                    // Create new browser webview
+                    let webview_builder = WebviewWindowBuilder::new(
+                        &app,
+                        "browser",
+                        WebviewUrl::External(parsed_url.clone()),
+                    )
+                    .title("xbrowser")
+                    .inner_size(1200.0, 800.0)
+                    .min_inner_size(800.0, 600.0)
+                    .resizable(true)
+                    .maximizable(true)
+                    .minimizable(true)
+                    .closable(true)
+                    .center()
+                    .focused(true);
+
+                    match webview_builder.build() {
+                        Ok(_) => {
+                            // Hide the main window since we now have a browser window
+                            let _ = main_window.hide();
+                            Ok(format!("Opened {} in new browser window", url))
+                        }
+                        Err(e) => Err(format!("Failed to create browser window: {}", e)),
+                    }
+                }
+            } else {
+                Err("Main window not found".to_string())
+            }
+        }
+        Err(e) => Err(format!("Invalid URL: {}", e)),
+    }
+}
+
+#[tauri::command]
+async fn close_browser_window(app: tauri::AppHandle) -> Result<String, String> {
+    if let Some(browser_window) = app.get_webview_window("browser") {
+        match browser_window.close() {
+            Ok(_) => {
+                // Show the main window again
+                if let Some(main_window) = app.get_webview_window("main") {
+                    let _ = main_window.show();
+                    let _ = main_window.set_focus();
+                }
+                Ok("Browser window closed".to_string())
+            }
+            Err(e) => Err(format!("Failed to close browser window: {}", e)),
+        }
+    } else {
+        Err("No browser window to close".to_string())
+    }
+}
+
+#[tauri::command]
+async fn get_current_url(app: tauri::AppHandle) -> Result<String, String> {
+    if let Some(browser_window) = app.get_webview_window("browser") {
+        // Note: Getting the current URL from a webview is limited in Tauri
+        // We'll need to track this in the frontend state
+        Ok("URL tracking via webview is limited".to_string())
+    } else {
+        Err("No browser window found".to_string())
+    }
+}
+
+#[tauri::command]
+async fn browser_go_back(app: tauri::AppHandle) -> Result<String, String> {
+    if let Some(browser_window) = app.get_webview_window("browser") {
+        // Tauri doesn't have direct back/forward navigation
+        // We'll need to implement this with JavaScript injection
+        let script = "if (window.history.length > 1) { window.history.back(); }";
+        match browser_window.eval(script) {
+            Ok(_) => Ok("Navigated back".to_string()),
+            Err(e) => Err(format!("Failed to go back: {}", e)),
+        }
+    } else {
+        Err("No browser window found".to_string())
+    }
+}
+
+#[tauri::command]
+async fn browser_go_forward(app: tauri::AppHandle) -> Result<String, String> {
+    if let Some(browser_window) = app.get_webview_window("browser") {
+        let script = "window.history.forward();";
+        match browser_window.eval(script) {
+            Ok(_) => Ok("Navigated forward".to_string()),
+            Err(e) => Err(format!("Failed to go forward: {}", e)),
+        }
+    } else {
+        Err("No browser window found".to_string())
+    }
+}
+
+#[tauri::command]
+async fn browser_refresh(app: tauri::AppHandle) -> Result<String, String> {
+    if let Some(browser_window) = app.get_webview_window("browser") {
+        let script = "window.location.reload();";
+        match browser_window.eval(script) {
+            Ok(_) => Ok("Page refreshed".to_string()),
+            Err(e) => Err(format!("Failed to refresh: {}", e)),
+        }
+    } else {
+        Err("No browser window found".to_string())
     }
 }
 
@@ -78,6 +201,12 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             validate_url,
+            navigate_to_url,
+            close_browser_window,
+            get_current_url,
+            browser_go_back,
+            browser_go_forward,
+            browser_refresh,
             update_bookmarks,
             get_bookmarks,
             clear_history,

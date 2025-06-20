@@ -11,7 +11,6 @@ let browserState = {
 
 // DOM elements
 let addressBar;
-let browserFrame;
 let backBtn;
 let forwardBtn;
 let refreshBtn;
@@ -30,7 +29,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function initializeElements() {
   addressBar = document.querySelector("#address-bar");
-  browserFrame = document.querySelector("#browser-frame");
   backBtn = document.querySelector("#back-btn");
   forwardBtn = document.querySelector("#forward-btn");
   refreshBtn = document.querySelector("#refresh-btn");
@@ -51,10 +49,6 @@ function setupEventListeners() {
   forwardBtn.addEventListener("click", navigateForward);
   refreshBtn.addEventListener("click", refreshPage);
   homeBtn.addEventListener("click", navigateHome);
-
-  // Browser frame events
-  browserFrame.addEventListener("load", handleFrameLoad);
-  browserFrame.addEventListener("error", handleFrameError);
 
   // Menu and bookmark events
   document.querySelector("#bookmark-btn").addEventListener("click", toggleBookmark);
@@ -102,18 +96,20 @@ async function navigateToUrl(input) {
     const isValid = await invoke("validate_url", { url });
     
     if (isValid) {
+      // Use native webview navigation
+      const result = await invoke("navigate_to_url", { url });
+      
       // Update browser state
       browserState.currentUrl = url;
       addToHistory(url);
       
-      // Navigate iframe
-      browserFrame.src = url;
+      // Update address bar and UI
       addressBar.value = url;
-      
-      // Update security indicator
       updateSecurityIndicator(url);
-      
       updateUI();
+      
+      updateStatus(result);
+      setLoadingState(false);
     } else {
       throw new Error("Invalid URL");
     }
@@ -136,62 +132,67 @@ function addToHistory(url) {
 }
 
 async function navigateBack() {
-  if (browserState.historyIndex > 0) {
-    browserState.historyIndex--;
-    const url = browserState.history[browserState.historyIndex];
-    browserState.currentUrl = url;
-    browserFrame.src = url;
-    addressBar.value = url;
-    updateSecurityIndicator(url);
-    updateUI();
-    updateStatus(`Navigating back to ${url}`);
+  try {
+    if (browserState.historyIndex > 0) {
+      const result = await invoke("browser_go_back");
+      browserState.historyIndex--;
+      const url = browserState.history[browserState.historyIndex];
+      browserState.currentUrl = url;
+      addressBar.value = url;
+      updateSecurityIndicator(url);
+      updateUI();
+      updateStatus(result);
+    }
+  } catch (error) {
+    console.error("Back navigation error:", error);
+    updateStatus(`Failed to go back: ${error.message}`);
   }
 }
 
 async function navigateForward() {
-  if (browserState.historyIndex < browserState.history.length - 1) {
-    browserState.historyIndex++;
-    const url = browserState.history[browserState.historyIndex];
-    browserState.currentUrl = url;
-    browserFrame.src = url;
-    addressBar.value = url;
-    updateSecurityIndicator(url);
-    updateUI();
-    updateStatus(`Navigating forward to ${url}`);
+  try {
+    if (browserState.historyIndex < browserState.history.length - 1) {
+      const result = await invoke("browser_go_forward");
+      browserState.historyIndex++;
+      const url = browserState.history[browserState.historyIndex];
+      browserState.currentUrl = url;
+      addressBar.value = url;
+      updateSecurityIndicator(url);
+      updateUI();
+      updateStatus(result);
+    }
+  } catch (error) {
+    console.error("Forward navigation error:", error);
+    updateStatus(`Failed to go forward: ${error.message}`);
   }
 }
 
 async function refreshPage() {
-  setLoadingState(true);
-  updateStatus("Refreshing page...");
-  browserFrame.src = browserFrame.src;
+  try {
+    setLoadingState(true);
+    updateStatus("Refreshing page...");
+    const result = await invoke("browser_refresh");
+    updateStatus(result);
+    setLoadingState(false);
+  } catch (error) {
+    console.error("Refresh error:", error);
+    updateStatus(`Failed to refresh: ${error.message}`);
+    setLoadingState(false);
+  }
 }
 
 async function navigateHome() {
   await navigateToUrl("https://www.google.com");
 }
 
-function handleFrameLoad() {
-  setLoadingState(false);
-  updateStatus("Page loaded");
-  
-  // Try to get the actual URL from the iframe (might be restricted by CORS)
+async function closeBrowserWindow() {
   try {
-    const frameUrl = browserFrame.contentWindow.location.href;
-    if (frameUrl && frameUrl !== "about:blank") {
-      browserState.currentUrl = frameUrl;
-      addressBar.value = frameUrl;
-      updateSecurityIndicator(frameUrl);
-    }
+    const result = await invoke("close_browser_window");
+    updateStatus(result);
   } catch (error) {
-    // CORS restriction, use the src attribute
-    console.log("Cannot access iframe URL due to CORS policy");
+    console.error("Close browser error:", error);
+    updateStatus(`Failed to close browser: ${error.message}`);
   }
-}
-
-function handleFrameError() {
-  setLoadingState(false);
-  updateStatus("Failed to load page");
 }
 
 function setLoadingState(loading) {
@@ -239,7 +240,7 @@ function updateUI() {
 async function toggleBookmark() {
   try {
     const url = browserState.currentUrl;
-    const title = await getPageTitle() || url;
+    const title = url; // We can't easily get page title from native webview
     
     const existingIndex = browserState.bookmarks.findIndex(bookmark => bookmark.url === url);
     
@@ -265,19 +266,12 @@ async function toggleBookmark() {
   }
 }
 
-async function getPageTitle() {
-  try {
-    return browserFrame.contentDocument?.title || browserFrame.contentWindow?.document?.title;
-  } catch (error) {
-    return null;
-  }
-}
-
 function showMenu() {
-  // Simple menu implementation
+  // Enhanced menu with browser window controls
   const menu = [
     "New Tab",
     "New Window", 
+    "Close Browser Window",
     "---",
     "History",
     "Bookmarks",
@@ -291,10 +285,18 @@ function showMenu() {
   
   // You could implement a proper context menu here
   console.log("Menu items:", menu);
+  
+  // For demo purposes, let's add a close browser option
+  setTimeout(() => {
+    const shouldClose = confirm("Would you like to close the browser window?");
+    if (shouldClose) {
+      closeBrowserWindow();
+    }
+  }, 1000);
 }
 
 async function loadHomePage() {
-  updateStatus("Ready");
+  updateStatus("xbrowser ready - Enter a URL to start browsing");
   setLoadingState(false);
 }
 
@@ -321,6 +323,10 @@ document.addEventListener("keydown", (event) => {
       case "]":
         event.preventDefault();
         navigateForward();
+        break;
+      case "w":
+        event.preventDefault();
+        closeBrowserWindow();
         break;
     }
   }

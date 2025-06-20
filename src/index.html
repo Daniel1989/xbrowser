@@ -68,14 +68,59 @@
         <div class="loading-bar"></div>
       </div>
 
-      <!-- Browser Content Area -->
-      <div class="content-area">
-        <iframe 
-          id="browser-frame" 
-          src="https://www.google.com"
-          frameborder="0"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
-        ></iframe>
+      <!-- Welcome Screen -->
+      <div class="welcome-area">
+        <div class="welcome-content">
+          <div class="browser-logo">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+            </svg>
+          </div>
+          <h1>Welcome to xbrowser</h1>
+          <p class="welcome-subtitle">A fast, secure, and modern web browser built with Tauri</p>
+          
+          <div class="getting-started">
+            <h3>Getting Started</h3>
+            <ul>
+              <li>Enter a URL in the address bar above</li>
+              <li>Try searching for anything</li>
+              <li>Use keyboard shortcuts for quick navigation</li>
+              <li>Bookmark your favorite sites</li>
+            </ul>
+          </div>
+
+          <div class="quick-links">
+            <h3>Quick Links</h3>
+            <div class="link-grid">
+              <button class="quick-link" onclick="document.querySelector('#address-bar').value='https://www.google.com'; document.querySelector('#address-bar').dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}))">Google</button>
+              <button class="quick-link" onclick="document.querySelector('#address-bar').value='https://github.com'; document.querySelector('#address-bar').dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}))">GitHub</button>
+              <button class="quick-link" onclick="document.querySelector('#address-bar').value='https://tauri.app'; document.querySelector('#address-bar').dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}))">Tauri</button>
+              <button class="quick-link" onclick="document.querySelector('#address-bar').value='https://developer.mozilla.org'; document.querySelector('#address-bar').dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}))">MDN</button>
+            </div>
+          </div>
+
+          <div class="keyboard-shortcuts">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="shortcut-grid">
+              <div class="shortcut">
+                <kbd>Ctrl/Cmd + L</kbd>
+                <span>Focus address bar</span>
+              </div>
+              <div class="shortcut">
+                <kbd>Ctrl/Cmd + R</kbd>
+                <span>Refresh page</span>
+              </div>
+              <div class="shortcut">
+                <kbd>Ctrl/Cmd + D</kbd>
+                <span>Bookmark page</span>
+              </div>
+              <div class="shortcut">
+                <kbd>Ctrl/Cmd + W</kbd>
+                <span>Close browser window</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Status bar -->
