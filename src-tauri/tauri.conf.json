@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "xbrowser",
+  "version": "0.1.0",
+  "identifier": "com.xbrowser.app",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "xbrowser",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "maximizable": true,
+        "minimizable": true,
+        "closable": true,
+        "titleBarStyle": "Visible",
+        "decorations": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' data: https: http: 'unsafe-inline' 'unsafe-eval'; frame-src 'self' data: https: http:; img-src 'self' data: https: http:; media-src 'self' data: https: http:; connect-src 'self' data: https: http: ws: wss:;"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Network",
+    "shortDescription": "A modern cross-platform web browser",
+    "longDescription": "xbrowser is a fast, secure, and modern web browser built with Tauri, combining the power of Rust with web technologies.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
